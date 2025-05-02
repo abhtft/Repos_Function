@@ -1,0 +1,63 @@
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import log_loss, accuracy_score
+import matplotlib.pyplot as plt
+
+def tune_logistic_regression(X_train, y_train, X_test, y_test, C_range=None, solver='lbfgs', max_iter=1000):
+    """
+    Tune logistic regression over a range of C values.
+    
+    Parameters:
+    - X_train, y_train: Training data
+    - X_test, y_test: Testing data
+    - C_range: list or array of C values (default: logspace from 1e-5 to 1e5)
+    - solver: solver used in LogisticRegression
+    - max_iter: max iterations for solver convergence
+    
+    Returns:
+    - best_model: LogisticRegression model with best log loss
+    """
+    if C_range is None:
+        C_range = np.geomspace(1e-5, 1e5, num=20)
+
+    acc_list = []
+    logloss_list = []
+
+    for c in C_range:
+        model = LogisticRegression(C=c, random_state=10, solver=solver, max_iter=max_iter)
+        model.fit(X_train, y_train)
+
+        # Accuracy
+        y_pred = model.predict(X_test)
+        acc = accuracy_score(y_test, y_pred)
+        acc_list.append(acc)
+
+        # Log loss
+        y_proba = model.predict_proba(X_test)
+        ll = log_loss(y_test, y_proba)
+        logloss_list.append(ll)
+
+        print(f"C = {c:.5f} --> Accuracy = {acc:.4f}, Log Loss = {ll:.4f}")
+
+    # Plotting
+    plt.figure(figsize=(10,5))
+    plt.semilogx(C_range, acc_list, label="Accuracy", marker='o')
+    plt.semilogx(C_range, logloss_list, label="Log Loss", marker='x')
+    plt.xlabel("C (Inverse Regularization Strength)")
+    plt.ylabel("Metric")
+    plt.title("Tuning Logistic Regression")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+    # Best Model
+    best_index = np.argmin(logloss_list)
+    best_C = C_range[best_index]
+    best_model = LogisticRegression(C=best_C, random_state=10, solver=solver, max_iter=max_iter)
+    best_model.fit(X_train, y_train)
+
+    print(f"\nBest C (based on log loss): {best_C:.5f}")
+    return best_model
+
+
+#best_model = tune_logistic_regression(X_train, y_train, X_test, y_test)
