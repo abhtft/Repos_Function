@@ -1,0 +1,45 @@
+The DummyClassifier from sklearn.dummy is a useful baseline classifier that helps you benchmark your classification models by providing simple, rule-based predictions.
+
+🧠 Why Use DummyClassifier?
+Before building complex models, it’s a good practice to compare your model's performance against a naive baseline. DummyClassifier does that by using strategies like:
+
+most_frequent: Always predicts the most frequent label in the training set.
+
+stratified: Generates predictions by respecting the training set’s label distribution.
+
+uniform: Makes predictions uniformly at random.
+
+constant: Always predicts a constant label (you provide it).
+
+prior: Always predicts according to class prior probabilities.
+
+✅ Example: Using DummyClassifier
+Let’s use it on a classification dataset:
+
+python
+Copy
+Edit
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.dummy import DummyClassifier
+from sklearn.metrics import accuracy_score
+
+# Load data
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+# Dummy classifier - most frequent class
+dummy = DummyClassifier(strategy='most_frequent')
+dummy.fit(X_train, y_train)
+y_pred = dummy.predict(X_test)
+
+# Evaluate
+print("DummyClassifier Accuracy:", accuracy_score(y_test, y_pred))
+🔍 When to Use
+Model sanity check: See if your real model is actually better than random guessing or constant predictions.
+
+Imbalanced datasets: most_frequent is a common naive baseline.
+
+Testing pipelines: Use it to verify data flow or metric calculations before plugging in complex models.
+
+Would you like a version for DummyRegressor as well?
